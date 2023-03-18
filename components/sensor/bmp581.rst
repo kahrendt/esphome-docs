@@ -65,8 +65,8 @@ Configuration variables:
 Infinite Impule Response Filter Options
 ---------------------------------------
 
-The Infinite Impule Response filter reduces noise in measurement values due to ambient conditions; e.g., a door slamming or a window opening. By default,
-IIR filter is disabled, but you can configure the amount of filtering for the temperature and pressure sensors separately. Possible IIR filter values:
+The BMP581's Infinite Impule Response filter reduces noise in measurement values due to ambient conditions; e.g., a door slamming or a window opening. By default,
+IIR filter is disabled for both the temperature and pressure sensors, but you can configure the amount of filtering for the temperature and pressure sensors separately. Possible IIR filter values:
 
 - ``OFF`` (default)
 -  ``2x``
@@ -77,13 +77,17 @@ IIR filter is disabled, but you can configure the amount of filtering for the te
 -  ``64x``
 -  ``128x``
 
+.. warning::
+
+  If the IIR filter is enabled for either the temperature or pressure sensor, then the BMP581's deep standby mode is disabled. This will increase the sensor's power consumption, so if you are using a long update interval; e.g., more than 0.2 updates per second, then consider using the mathematically equivalent ESPHome exponential filter instead of the IIR interal filter to reduce power consumption. See :ref:`exponential moving average filter<sensor-filter-exponential_moving_average>` for information.
+
 
 .. _bmp581-oversampling:
 
 Oversampling Options
 --------------------
 
-By default, the BMP581 sensor measures pressure 16 times and temperature once when requesting a new value to reduce measurement noise. You can, however,
+By default, the BMP581 sensor measures the pressure 16 times and temperature once when requesting a new value to reduce measurement noise. You can, however,
 configure this amount. Possible oversampling values:
 
 -  ``NONE`` (value is skipped, default for temperature)
