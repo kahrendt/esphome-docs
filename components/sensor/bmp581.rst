@@ -6,7 +6,7 @@ BMP581 Temperature+Pressure Sensor
     :image: bmp581.jpg
     :keywords: BMP581
 
-The ``bmp3xx`` sensor platform allows you to use your BMP581 
+The ``bmp581`` sensor platform allows you to use your BMP581 
 (`datasheet <https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp581-ds004.pdf>`__, `SparkFun <https://www.sparkfun.com/products/20170>`__) temperature and pressure sensors with ESPHome. The :ref:`I²C <i2c>` bus is
 required to be set up in your configuration for this sensor to work.
 
@@ -59,6 +59,59 @@ Configuration variables:
 - **update_interval** (*Optional*, :ref:`config-time`): The interval to check the
   sensor. Defaults to ``60s``.
 
+.. _bmp581-oversampling:
+
+Oversampling Options
+--------------------
+
+By default, the BMP581 sensor measures the pressure 16 times and temperature once when requesting a new value to reduce measurement noise. You can, however,
+configure this amount. Possible oversampling values:
+
+-  ``NONE`` (value is skipped, default for temperature)
+-  ``2x``
+-  ``4x``
+-  ``8x``
+-  ``16x`` (default for pressure)
+-  ``32x``
+-  ``64x``
+-  ``128x``
+
+The datasheet gives suggestions for oversampling combinations:
+
+.. list-table:: Oversampling Settings
+  :header-rows: 1 
+
+  * - Oversampling setting
+    - Pressure oversampling
+    - Temperature oversampling
+  * - Lowest power
+    - ``NONE``
+    - ``NONE``
+  * - 
+    - ``2x``
+    - ``NONE``
+  * - Standard resolution
+    - ``4x``
+    - ``NONE``
+  * -
+    - ``8x``
+    - ``NONE``
+  * - High resolution (default)
+    - ``16x``
+    - ``NONE``
+  * -
+    - ``32x``
+    - ``2x``
+  * -
+    - ``64x``
+    - ``4x``
+  * - Highest resolution
+    - ``128x``
+    - ``8x``
+
+.. note::
+
+    Increasing oversampling settings increases the time it takes for the sensor to measure temperature and pressure. With no oversampling enabled, the measurement time is approximately 3 ms. If temperature and pressure oversampling are both set to ``128x``, then the measurement time is approximately approximately 107 ms. The component takes this into timing into account, but if you require very frequent measurements or want to reduce power consumption, then consider using lower oversampling rates.
 
 .. _bmp581-iir:
 
@@ -81,23 +134,6 @@ IIR filter is disabled for both the temperature and pressure sensors, but you ca
 
     If the IIR filter is enabled for either the temperature or pressure sensor, then the BMP581's deep standby mode is disabled. This will increase the sensor's power consumption, so if you are using a long update interval; e.g., more than 0.2 updates per second, then consider using the mathematically equivalent ESPHome exponential filter instead of the IIR interal filter to reduce power consumption. See :ref:`exponential moving average filter<sensor-filter-exponential_moving_average>` for information.
 
-
-.. _bmp581-oversampling:
-
-Oversampling Options
---------------------
-
-By default, the BMP581 sensor measures the pressure 16 times and temperature once when requesting a new value to reduce measurement noise. You can, however,
-configure this amount. Possible oversampling values:
-
--  ``NONE`` (value is skipped, default for temperature)
--  ``2x``
--  ``4x``
--  ``8x``
--  ``16x`` (default for pressure)
--  ``32x``
--  ``64x``
--  ``128x``
 
 See Also
 --------
