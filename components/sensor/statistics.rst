@@ -8,7 +8,7 @@ The ``statistics`` sensor platform quickly generates summary statistics from ano
 
 Each summary statistic sensor is optional, and the component only stores the measurement information necessary for the configured sensors.
 
-Note that several of these statistics can instead be gathered using :ref:`sensor-filters`. This component allows you to quickly generate multiple summary statistics from the same source sensor, and they are computed in a more effecient manner than the filters for large sliding windows.
+Note that several of these statistics can instead be individually gathered using :ref:`sensor-filters`. This component allows you to quickly generate multiple summary statistics from the same source sensor, and they are computed in a more effecient manner than the filters for large sliding windows.
 
 To use the sensor, first, provide the source sensor and then configure the desired statistics.
 
