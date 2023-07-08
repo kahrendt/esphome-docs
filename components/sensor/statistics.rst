@@ -52,21 +52,28 @@ Configuration variables:
 ------------------------
 
 - **name** (**Required**, string): The name of the sensor.
-- **time_unit** (*Optional*, string): The time unit used for the covariance and trend sennsors, one of
+- **type** (**Required**, string): One of ``sliding_window``, ``chunked_sliding_window``, ``continuous``, or ``chunked_continuous``.
+- **average_type** (*Optional*, string): How each measurement is weighted, one of ``simple`` or ``time_weighted``. Defaults to ``simple``.
+- **group_type** (*Optional*, string): The type of the set of sensor measurements, one of ``sample`` or ``population``. Defaults to ``sample``.
+- **time_unit** (*Optional*, string): The time unit used for the covariance and trend sensors, one of
   ``ms``, ``s``, ``min``, ``h`` or ``d``. Defaults to ``s``.
-- **window_size** (*Optional*, int): The number of values over which to calculate the summary statistics when pushing out a
-  value. Defaults to ``15``.
-- **send_every** (*Optional*, int): How often a sensor statistics should be pushed out. For
-  example, in above configuration each summary statistic is sent after every 5th received sensor value, over the last 15 received values. Defaults to ``15``.
-- **send_first_at** (*Optional*, int): By default, the very first raw value on boot is immediately
-  published. With this parameter you can specify when the very first value is to be sent.
-  Must be smaller than or equal to ``send_every``
-  Defaults to ``1``.
-- **min** (*Optional*): The information for the minimum sensor.
+- **count** (*Optional*): The information for the count sensor.
 
-  - **name** (**Required**, string): The name for the minimum sensor.
+  - **name** (**Required**, string): The name for the count sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
-  - All other options from :ref:`Sensor <config-sensor>`.
+  - All other options from :ref:`Sensor <config-sensor>`.  
+
+- **covariance** (*Optional*): The information for the sample covariance sensor (Bessel's correction is applied).
+
+  - **name** (**Required**, string): The name for the sample covariance sensor.
+  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
+  - All other options from :ref:`Sensor <config-sensor>`.  
+
+- **duration** (*Optional*): The information for the duration sensor.
+
+  - **name** (**Required**, string): The name for the duration sensor.
+  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
+  - All other options from :ref:`Sensor <config-sensor>`.    
 
 - **max** (*Optional*): The information for the maximum sensor.
 
@@ -80,9 +87,9 @@ Configuration variables:
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
-- **variance** (*Optional*): The information for the sample variance sensor (Bessel's correction is applied).
+- **min** (*Optional*): The information for the minimum sensor.
 
-  - **name** (**Required**, string): The name for the sample variance sensor.
+  - **name** (**Required**, string): The name for the minimum sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
@@ -92,23 +99,61 @@ Configuration variables:
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
-- **covariance** (*Optional*): The information for the sample covariance sensor (Bessel's correction is applied).
-
-  - **name** (**Required**, string): The name for the sample covariance sensor.
-  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
-  - All other options from :ref:`Sensor <config-sensor>`.
-
 - **trend** (*Optional*): The information for the trend sensor.
 
   - **name** (**Required**, string): The name for the trend sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
-- **count** (*Optional*): The information for the count sensor.
+- **variance** (*Optional*): The information for the sample variance sensor (Bessel's correction is applied).
 
-  - **name** (**Required**, string): The name for the count sensor.
+  - **name** (**Required**, string): The name for the sample variance sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
+
+``sliding_window`` type options:
+
+- **window_size** (**Required**, int): The number of values over which to calculate the summary statistics when pushing out a
+  value.
+- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *measurements*.
+- **send_first_at** (*Optional*, int): By default, the first measurement's statistics on boot is immediately
+  published. With this parameter you can specify how many measurements should be collected before the first statistics are sent.
+  Must be smaller than or equal to ``send_every``
+  Defaults to ``1``.
+
+``chunked_sliding_window`` type options:
+
+- **chunks_in_window** (**Required**, int): The number of chunks over which to calculate the summary statistics when pushing out a value.
+- **measurements_per_chunk** (*Optional*, int): Note that exactly one of ``measurements_per_chunk`` or ``duration_of_chunk`` must be present.
+- **duration_of_chunk** (*Optional*, :ref:`config-time`): Note that exactly one of ``measurements_per_chunk`` or ``duration_of_chunk`` must be present.
+- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *chunks*.
+- **send_first_at** (*Optional*, int): By default, the first chunk's statistics on boot is immediately
+  published. With this parameter you can specify how many chunks should be collected before the first statistics are sent.
+  Must be smaller than or equal to ``send_every``
+  Defaults to ``1``.
+
+``continuous`` type options:
+
+- **measurements_before_reset** (*Optional*, int): Number of sensor measurements before all statistics are reset. Set to ``0`` to disable automatic resets. Note that if both ``duration_before_reset`` and ``measurements_before_reset`` are set, whichever one is exceeded first will cause a reset. 
+- **duration_before_reset** (*Optional*, :ref:`config-time`): Time duration before all statistics are reset. Note that if both ``duration_before_reset`` and ``measurements_before_reset`` are set, whichever one is exceeded first will cause a reset.
+- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *measurements*.
+- **send_first_at** (*Optional*, int): By default, the first measurement's statistics on boot is immediately
+  published. With this parameter you can specify how many measurements should be collected before the first statistics are sent.
+  Must be smaller than or equal to ``send_every``
+  Defaults to ``1``.
+
+``chunked_continuous`` type options:
+
+- **measurements_per_chunk** (*Optional*, int): Note that exactly one of ``measurements_per_chunk`` or ``duration_of_chunk`` must be present.
+- **duration_of_chunk** (*Optional*, :ref:`config-time`): Note that exactly one of ``measurements_per_chunk`` or ``duration_of_chunk`` must be present.
+- **chunks_before_reset** (*Optional*, int): Number of chunks before all statistics are reset. Set to ``0`` to disable automatic resets. Note that if both ``duration_before_reset`` and ``chunks_before_reset`` are set, whichever one is exceeded first will cause a reset. 
+- **duration_before_reset** (*Optional*, :ref:`config-time`): Time duration before all statistics are reset. Note that if both ``duration_before_reset`` and ``chunks_before_reset`` are set, whichever one is exceeded first will cause a reset.
+- **restore** (*Optional*, boolean): Whether to store the intermediate statistics on the device so that they can be restored upon power cycle or reboot. Warning: this option can wear out your flash. Defaults to ``false``.
+- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *chunks*.
+- **send_first_at** (*Optional*, int): By default, the first chunk's statistics on boot is immediately
+  published. With this parameter you can specify how many chunks should be collected before the first statistics are sent.
+  Must be smaller than or equal to ``send_every``
+  Defaults to ``1``.
 
 See Also
 --------
