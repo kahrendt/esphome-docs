@@ -4,7 +4,7 @@ Statistics
 .. seo::
     :description: Instructions for setting up a Statistics Sensor
 
-The ``statistics`` sensor platform quickly generates summary statistics from another sensor's measurements over a sliding window of observations. This sensor computes the following summary statistics: minimum, maximum, mean (average), sample variance, sample standard deviation, sample covariance, and trend (the slope of the line of best fit). It also provides the count of the number of valid (not ``NaN``) measurements currently in the sliding window. This sensor is efficient both computationally and in memory usage. The summary statistics for each observation in the sliding window are stored in external PSRam if available. Otherwise, it uses the internal memory of the device.
+The ``statistics`` sensor platform quickly generates summary statistics from another sensor's measurements over a sliding window of observations. This sensor computes the following summary statistics: minimum, maximum, mean (average), variance, standard deviation, covariance, and trend (the slope of the line of best fit). It also provides the count of the number of valid (not ``NaN``) measurements currently in the sliding window. This sensor is efficient both computationally and in memory usage. The summary statistics for each observation in the sliding window are stored in external PSRam if available. Otherwise, it uses the internal memory of the device.
 
 Each summary statistic sensor is optional, and the component only stores the measurement information necessary for the configured sensors.
 
@@ -26,9 +26,12 @@ The count sensor does not inherit any properties from the source sensor, and its
         source_id: source_measurement_sensor
         window_size: 15
         send_every: 5
-        send_first_at: 10
+        send_first_at: 3
+        group_type: sample
         count:
           name: "Count of Valid Sensor Measurements"    
+        duration:
+          name: "Sample Duration"
         max:
           name: "Sensor Maximum"   
         min:
@@ -51,7 +54,6 @@ The count sensor does not inherit any properties from the source sensor, and its
 Configuration variables:
 ------------------------
 
-- **name** (**Required**, string): The name of the sensor.
 - **type** (**Required**, string): One of ``sliding_window``, ``chunked_sliding_window``, ``continuous``, or ``chunked_continuous``.
 - **average_type** (*Optional*, string): How each measurement is weighted, one of ``simple`` or ``time_weighted``. Defaults to ``simple``.
 - **group_type** (*Optional*, string): The type of the set of sensor measurements, one of ``sample`` or ``population``. Defaults to ``sample``.
@@ -63,9 +65,9 @@ Configuration variables:
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.  
 
-- **covariance** (*Optional*): The information for the sample covariance sensor (Bessel's correction is applied).
+- **covariance** (*Optional*): The information for the covariance sensor.
 
-  - **name** (**Required**, string): The name for the sample covariance sensor.
+  - **name** (**Required**, string): The name for the covariance sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.  
 
@@ -93,9 +95,9 @@ Configuration variables:
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
-- **std_dev** (*Optional*): The information for the sample standard deviation sensor (Bessel's correction is applied).
+- **std_dev** (*Optional*): The information for the standard deviation sensor.
 
-  - **name** (**Required**, string): The name for the sample standard deviation sensor.
+  - **name** (**Required**, string): The name for the standard deviation sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
@@ -105,54 +107,54 @@ Configuration variables:
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
-- **variance** (*Optional*): The information for the sample variance sensor (Bessel's correction is applied).
+- **variance** (*Optional*): The information for the variance sensor.
 
-  - **name** (**Required**, string): The name for the sample variance sensor.
+  - **name** (**Required**, string): The name for the variance sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
 ``sliding_window`` type options:
 
-- **window_size** (**Required**, int): The number of values over which to calculate the summary statistics when pushing out a
+- **window_size** (**Required**, int): The number of *measurements* over which to calculate the summary statistics when pushing out a
   value.
 - **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *measurements*.
-- **send_first_at** (*Optional*, int): By default, the first measurement's statistics on boot is immediately
-  published. With this parameter you can specify how many measurements should be collected before the first statistics are sent.
+- **send_first_at** (*Optional*, int): By default, the first *measurement's* statistics on boot is immediately
+  published. With this parameter you can specify how many *measurements* should be collected before the first statistics are sent.
   Must be smaller than or equal to ``send_every``
   Defaults to ``1``.
 
 ``chunked_sliding_window`` type options:
 
-- **chunks_in_window** (**Required**, int): The number of chunks over which to calculate the summary statistics when pushing out a value.
-- **measurements_per_chunk** (*Optional*, int): Note that exactly one of ``measurements_per_chunk`` or ``duration_of_chunk`` must be present.
-- **duration_of_chunk** (*Optional*, :ref:`config-time`): Note that exactly one of ``measurements_per_chunk`` or ``duration_of_chunk`` must be present.
+- **window_size** (**Required**, int): The number of *chunks* over which to calculate the summary statistics when pushing out a value.
+- **chunk_size** (*Optional*, int): Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **chunk_duration** (*Optional*, :ref:`config-time`): Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 - **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *chunks*.
-- **send_first_at** (*Optional*, int): By default, the first chunk's statistics on boot is immediately
-  published. With this parameter you can specify how many chunks should be collected before the first statistics are sent.
+- **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
+  published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
   Must be smaller than or equal to ``send_every``
   Defaults to ``1``.
 
 ``continuous`` type options:
 
-- **measurements_before_reset** (*Optional*, int): Number of sensor measurements before all statistics are reset. Set to ``0`` to disable automatic resets. Note that if both ``duration_before_reset`` and ``measurements_before_reset`` are set, whichever one is exceeded first will cause a reset. 
-- **duration_before_reset** (*Optional*, :ref:`config-time`): Time duration before all statistics are reset. Note that if both ``duration_before_reset`` and ``measurements_before_reset`` are set, whichever one is exceeded first will cause a reset.
+- **window_size** (*Optional*, int): The number of *measurements* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
+- **window_duration** (*Optional*, :ref:`config-time`): Time duration after which all statistics are reset. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *measurements*.
-- **send_first_at** (*Optional*, int): By default, the first measurement's statistics on boot is immediately
-  published. With this parameter you can specify how many measurements should be collected before the first statistics are sent.
-  Must be smaller than or equal to ``send_every``
+- **send_first_at** (*Optional*, int): By default, the first *measurement's* statistics on boot is immediately
+  published. With this parameter you can specify how many *measurements* should be collected before the first statistics are sent.
+  Must be smaller than or equal to ``send_every``.
   Defaults to ``1``.
 
 ``chunked_continuous`` type options:
 
-- **measurements_per_chunk** (*Optional*, int): Note that exactly one of ``measurements_per_chunk`` or ``duration_of_chunk`` must be present.
-- **duration_of_chunk** (*Optional*, :ref:`config-time`): Note that exactly one of ``measurements_per_chunk`` or ``duration_of_chunk`` must be present.
-- **chunks_before_reset** (*Optional*, int): Number of chunks before all statistics are reset. Set to ``0`` to disable automatic resets. Note that if both ``duration_before_reset`` and ``chunks_before_reset`` are set, whichever one is exceeded first will cause a reset. 
-- **duration_before_reset** (*Optional*, :ref:`config-time`): Time duration before all statistics are reset. Note that if both ``duration_before_reset`` and ``chunks_before_reset`` are set, whichever one is exceeded first will cause a reset.
+- **chunk_size** (*Optional*, int): Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **chunk_duration** (*Optional*, :ref:`config-time`): Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **window_size** (*Optional*, int): The number of *chunks* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
+- **window_duration** (*Optional*, :ref:`config-time`): Time duration after which all statistics are reset. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **restore** (*Optional*, boolean): Whether to store the intermediate statistics on the device so that they can be restored upon power cycle or reboot. Warning: this option can wear out your flash. Defaults to ``false``.
 - **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *chunks*.
-- **send_first_at** (*Optional*, int): By default, the first chunk's statistics on boot is immediately
-  published. With this parameter you can specify how many chunks should be collected before the first statistics are sent.
-  Must be smaller than or equal to ``send_every``
+- **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
+  published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
+  Must be smaller than or equal to ``send_every``.
   Defaults to ``1``.
 
 See Also
