@@ -157,6 +157,17 @@ Configuration variables:
   Must be smaller than or equal to ``send_every``.
   Defaults to ``1``.
 
+``sensor.statistics.reset`` Action
+----------------------------------
+
+This :ref:`Action <config-action>` allows you to reset all the statistics by clearing all stored measurements. 
+For example, this can be used to reset all the statistics sensors at midnight with a time-based automation.
+
+.. code-block:: yaml
+
+    on_...:
+      - sensor.statistics.reset:  my_statistics_component  
+
 See Also
 --------
 
