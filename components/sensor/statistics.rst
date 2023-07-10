@@ -126,8 +126,8 @@ Configuration variables:
 ``chunked_sliding_window`` type options:
 
 - **window_size** (**Required**, int): The number of *chunks* over which to calculate the summary statistics when pushing out a value.
-- **chunk_size** (*Optional*, int): Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
-- **chunk_duration** (*Optional*, :ref:`config-time`): Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **chunk_size** (*Optional*, int): The number of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 - **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *chunks*.
 - **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
   published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
@@ -146,8 +146,8 @@ Configuration variables:
 
 ``chunked_continuous`` type options:
 
-- **chunk_size** (*Optional*, int): Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
-- **chunk_duration** (*Optional*, :ref:`config-time`): Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **chunk_size** (*Optional*, int): The number of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 - **window_size** (*Optional*, int): The number of *chunks* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **window_duration** (*Optional*, :ref:`config-time`): Time duration after which all statistics are reset. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **restore** (*Optional*, boolean): Whether to store the intermediate statistics on the device so that they can be restored upon power cycle or reboot. Warning: this option can wear out your flash. Defaults to ``false``.
