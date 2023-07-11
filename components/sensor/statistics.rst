@@ -8,7 +8,7 @@ The ``statistics`` sensor platform quickly generates summary statistics from ano
 
 The component calculates statistics over a sliding window or a resettable continuous window. See :ref:`window-types` for details about each possible type.
 
-Each summary statistic sensor is optional, and the component only stores the measurement information necessary for the enabled sensors. This component uses external memory (PSram on an ESP32) if available.
+Each summary statistic sensor is optional, and the component stores the measurement information only necessary for the enabled sensors. The component uses external memory on ESP32 boards if available. See :ref:`external_memory` for details.
 
 You could also use :ref:`sensor-filters` to compute some of the available summary statistics over a sliding window. In contrast, this component allows you to generate multiple summary statistics from the same source sensor. Additionally, it calculates them more efficiently than sensors filters.
 
@@ -19,7 +19,7 @@ To use the component, first, provide the source sensor and then configure the wi
     # Example configuration entry
     sensor:
       - platform: statistics
-        source_id: source_measurement_sensor
+        source_id: source_measurement_sensor_id
         window:
           type: sliding
           window_size: 15
@@ -48,7 +48,7 @@ To use the component, first, provide the source sensor and then configure the wi
 
       # Use any other sensor component to gather statistics for
       - platform: ...
-        id: source_measurement_sensor
+        id: source_measurement_sensor_id
 
 Configuration variables:
 ------------------------
@@ -113,22 +113,22 @@ Configuration variables:
   - All other options from :ref:`Sensor <config-sensor>`.
 
 
-``sliding`` type options:
+``sliding`` window type options:
 ********************************
 
 - **window_size** (**Required**, int): The number of *measurements* over which to calculate the summary statistics when pushing out a
   value.
-- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *measurements*.
+- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *measurements*.
 - **send_first_at** (*Optional*, int): By default, the first *measurement's* statistics on boot is immediately
   published. With this parameter you can specify how many *measurements* should be collected before the first statistics are sent.
   Must be smaller than or equal to ``send_every``
   Defaults to ``1``.
 
-``chunked_sliding`` type options:
+``chunked_sliding`` window type options:
 ****************************************
 
 - **window_size** (**Required**, int): The number of *chunks* over which to calculate the summary statistics when pushing out a value.
-- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *chunks*.
+- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *chunks*.
 - **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
   published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
   Must be smaller than or equal to ``send_every``
@@ -137,23 +137,23 @@ Configuration variables:
 - **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 
 
-``continuous`` type options:
+``continuous`` window type options:
 ***********************************
 
 - **window_size** (*Optional*, int): The number of *measurements* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **window_duration** (*Optional*, :ref:`config-time`): Time duration after which all statistics are reset. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
-- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *measurements*.
+- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *measurements*.
 - **send_first_at** (*Optional*, int): By default, the first *measurement's* statistics on boot is immediately
   published. With this parameter you can specify how many *measurements* should be collected before the first statistics are sent.
   Must be smaller than or equal to ``send_every``.
   Defaults to ``1``.
 
-``chunked_continuous`` type options:
+``chunked_continuous`` window type options:
 *******************************************
 
 - **window_size** (*Optional*, int): The number of *chunks* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **window_duration** (*Optional*, :ref:`config-time`): Time duration after which all statistics are reset. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
-- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will be publish updates after every 15 *chunks*.
+- **send_every** (**Required**, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *chunks*.
 - **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
   published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
   Must be smaller than or equal to ``send_every``.
@@ -238,7 +238,8 @@ Statistics Description
   - If ``group_type`` is ``sample``, and ``average_type`` is ``simple``, then it uses Bessel's correction to give an unbiased estimator.
   - If ``group_type`` is ``sample``, and ``average_type`` is ``time_weighted``, then it uses reliability weights to give an unbiased estimator.  
   - By default, its ``state_class`` is ``measurement``.
-  - By default, it inherits ``accuracy_decimals``, ``entity_category``, and ``icon`` from the source sensor.
+  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.
+  - By default, it uses 2 more ``accuracy_decimals`` than the source sensor.
   - The ``unit_of_measurement`` is the source sensor's unit multiplied by the configured ``time_unit``. For example, if the source sensor is in ``Pa`` and ``time_unit`` is in seconds, the unit is ``Pa⋅s``.
   
 - ``duration`` sensor:
@@ -271,13 +272,15 @@ Statistics Description
   - If ``group_type`` is ``sample``, and ``average_type`` is ``simple``, then it uses Bessel's correction to give an unbiased estimator.
   - If ``group_type`` is ``sample``, and ``average_type`` is ``time_weighted``, then it uses reliability weights to give an unbiased estimator.  
   - By default, its ``state_class`` is ``measurement``.  
-  - By default, it inherits ``accuracy_decimals``, ``device_class``, ``entity_category``, ``icon``, and ``unit_of_measurement`` from the source sensor.
+  - By default, it inherits ``device_class``, ``entity_category``, ``icon``, and ``unit_of_measurement`` from the source sensor.
+  - By default, it uses 2 more ``accuracy_decimals`` than the source sensor.
 
 - ``trend`` sensor:
 
   - Gives the slope of the line of best fit for the source sensor measurements in the window versus their timestamps.
   - By default, its ``state_class`` is ``measurement``.  
-  - By default, it inherits ``accuracy_decimals``, ``entity_category``, and ``icon`` from the source sensor.
+  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.
+  - By default, it uses 2 more ``accuracy_decimals`` than the source sensor.
   - The ``unit_of_measurement`` is the source sensor's unit divided by the configured ``time_unit``. For example, if the source sensor is in ``Pa`` and ``time_unit`` is in seconds, the unit is ``Pa/s``.
   
 - ``variance`` sensor:
@@ -286,9 +289,137 @@ Statistics Description
   - If ``group_type`` is ``sample``, and ``average_type`` is ``simple``, then it uses Bessel's correction to give an unbiased estimator.
   - If ``group_type`` is ``sample``, and ``average_type`` is ``time_weighted``, then it uses reliability weights to give an unbiased estimator.
   - By default, its ``state_class`` is ``measurement``.  
-  - By default, it inherits ``accuracy_decimals``, ``entity_category``, and ``icon`` from the source sensor.
+  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.
+  - By default, it uses 2 more ``accuracy_decimals`` than the source sensor.
   - The ``unit_of_measurement`` is the source sensor's unit squared. For example, if the source sensor is in ``Pa``, the unit is ``(Pa)²``.
-  
+
+General Advice
+--------------
+
+Average Types
+*************
+
+You can configure the average type to equally weight each sensor measurement using ``simple`` or weigh each measurement by its duration using ``time_weighted``. If your sensor updates are consistently timed, then ``simple`` should work well. If your sensor is not updated regularly, then choose the ``time_weighted`` type. Note that with the ``time_weighted`` type, a sensor measurement is not inserted into the window until the next sensor measurement; i.e., there is a delay of one measurement. This is necessary to determine the each measurement's duration.
+
+
+.. _external_memory:
+
+External Memory
+***************
+
+If you use an ESP32 board with external memory, then this component will automatically use it to store sensor measurements. Just add ``psram:`` to your configuration.
+
+.. code-block:: yaml
+
+    # Example external memory configuration
+    psram:
+
+    sensor:
+      - platform: statistics
+      ...
+
+Group Types
+***********
+
+You can configure whether the component considers the set of sensor measurements to be a population or a sample using the ``population`` and ``sample`` type respectivally. This will affect the ``covariance``, ``standard deviation``, and ``variance`` sensors. For sliding windows or continuous windows that reset, the ``sample`` type is appropiate. If you are using a ``chunked_continuous`` window type without resetting it; i.e., ``window_size`` is ``0``, then you should use the ``population`` type. 
+
+Trend Sensor
+************
+
+The trend sensor can be unstable over a small set of sensor measurements, especially if there is some noise in the underlying data. To avoid this, use a trend sensor over windows with a large amount of measurements in them; e.g., 50 or more. Or, apply a smoothing filter like an exponential moving average to the source sensor before being sent to this component.
+
+Which Continuous Window Type to Choose
+**************************************
+
+If you want to collect long-term statistics that include thousands (or more) of measurements, then you should use the ``chunked_continuous`` window type. If you are only collecting statistics over a smaller set of measurements, then use the ``continuous`` window type.
+
+
+Which Sliding Window Type to Choose
+***********************************
+
+Unless you need your statistics to update after every sensor measurement or you need to set the ``send_every`` option to a number that does not divide ``window_size``, you should use the ``chunked_sliding`` window type.
+
+
+Which Type Examples
+*******************
+
+Suppose you want to send the mean/average of a sensor's measurments over the last minute once every minute, then you should use the ``continuous`` window type:
+
+.. code-block:: yaml
+
+    # One minute average sent every minute
+    sensor:
+      - platform: statistics
+        source_id: source_measurement_sensor_id
+        window:
+          type: continuous
+          window_duration: 1min
+          send_every: 1
+        mean:
+          name: "Sensor Mean (1 minute)"  
+
+Suppose you want to collect the minimum and maximum value of a sensor's measurements over the last hour, updated once per minute.
+
+.. code-block:: yaml
+
+    # Min and max in the last hour sent every minute
+    sensor:
+      - platform: statistics
+        source_id: source_measurement_sensor_id
+        window:
+          type: chunked_sliding
+          window_size: 60         # 60 chunks that are 1 minute each is 1 hour
+          chunk_duration: 1min
+          send_every: 1
+        min:
+          name: "Sensor Min (1 hour)"  
+        max:
+          name: "Sensor Max (1 hour)"
+
+Suppose you want to collect the mean/average of a sensor's measurements for all time, with updates every 15 minutes.
+
+.. code-block:: yaml
+
+    # All time mean
+    sensor:
+      - platform: statistics
+        source_id: source_measurement_sensor_id
+        window:
+          type: chunked_continuous
+          window_size: 0          # disables automatic resets
+          chunk_duration: 15min
+          send_every: 1
+          restore: true           # periodically saves statistics to flash to recover on power loss or reboot
+        mean:
+          name: "Sensor Mean (all time)"
+
+    preferences:
+      flash_write_interval: 1h    # writes statistics to flash every hour to avoid unnecessary writes      
+
+Suppose you want to detect whether a sensors measurements has been increasing at a high rate. For example, if a humidity sensor in a bathroom is increasing fast, then there is a good chance the shower is running.
+
+.. code-block:: yaml
+
+    # Trend Detection
+    sensor:
+      - platform: statistics
+        source_id: humidity sensor
+        time_unit: h              # trend gives change in humidity percentage per hour
+        window:
+          type: chunked_continuous
+          window_size: 15         # compute trend over last 15 minutes
+          chunk_duration: 1min
+        trend:
+          name: "Humidity Trend (15 minutes)"
+          id: humidity_trend
+    
+    binary_sensor:
+      - platform: analog_threshold
+        name: "Shower Started"
+        sensor_id: humidity_trend
+        threshold: 5            # sends state of true if humidity is increasing at a rate of 5 percent per hour or more
+
+
 
 ``sensor.statistics.reset`` Action
 ----------------------------------
