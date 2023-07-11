@@ -292,8 +292,8 @@ Statistics Description
 ``sensor.statistics.reset`` Action
 ----------------------------------
 
-This :ref:`Action <config-action>` allows you to reset all the statistics by clearing all stored measurements. 
-For example, this can be used to reset all the statistics sensors at midnight with a time-based automation.
+This :ref:`Action <config-action>` allows you to reset all the statistics by clearing all stored measurements in the window. 
+For example, you could use a time-based automation to  reset all the statistics sensors at midnight.
 
 .. code-block:: yaml
 
