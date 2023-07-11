@@ -10,7 +10,7 @@ The component calculates statistics over a sliding window or a resettable contin
 
 Each summary statistic sensor is optional, and the component only stores the measurement information necessary for the enabled sensors. This component uses external memory (PSram on an ESP32) if available.
 
-You could also use :ref:`sensor-filters` to compute some of the available summary statistics over a sliding window. In contrast, this component allows you to generate multiple summary statistics from the same source sensor. Furthermore, it calculates them more efficiently than sensors filters.
+You could also use :ref:`sensor-filters` to compute some of the available summary statistics over a sliding window. In contrast, this component allows you to generate multiple summary statistics from the same source sensor. Additionally, it calculates them more efficiently than sensors filters.
 
 To use the component, first, provide the source sensor and then configure the window settings and the desired statistics.
 
@@ -20,10 +20,11 @@ To use the component, first, provide the source sensor and then configure the wi
     sensor:
       - platform: statistics
         source_id: source_measurement_sensor
-        type: sliding_window
-        window_size: 15
-        send_every: 5
-        send_first_at: 3
+        window:
+          type: sliding
+          window_size: 15
+          send_every: 5
+          send_first_at: 3
         average_type: time_weighted
         group_type: sample
         count:
@@ -52,10 +53,10 @@ To use the component, first, provide the source sensor and then configure the wi
 Configuration variables:
 ------------------------
 
-- **type** (**Required**, string): One of ``sliding_window``, ``chunked_sliding_window``, ``continuous_window``, or ``chunked_continuous_window``.
-- **average_type** (*Optional*, string): How each measurement is weighted, one of ``simple`` or ``time_weighted``. Defaults to ``simple``.
-- **group_type** (*Optional*, string): The type of the set of sensor measurements, one of ``sample`` or ``population``. Defaults to ``sample``.
-- **time_unit** (*Optional*, string): The time unit used for the covariance and trend sensors, one of
+- **type** (**Required**, enum): One of ``sliding``, ``chunked_sliding``, ``continuous``, or ``chunked_continuous``.
+- **average_type** (*Optional*, enum): How each measurement is weighted, one of ``simple`` or ``time_weighted``. Defaults to ``simple``.
+- **group_type** (*Optional*, enum): The type of the set of sensor measurements, one of ``sample`` or ``population``. Defaults to ``sample``.
+- **time_unit** (*Optional*, enum): The time unit used for the covariance and trend sensors, one of
   ``ms``, ``s``, ``min``, ``h`` or ``d``. Defaults to ``s``.
 - **count** (*Optional*): The information for the count sensor.
 
@@ -112,7 +113,7 @@ Configuration variables:
   - All other options from :ref:`Sensor <config-sensor>`.
 
 
-``sliding_window`` type options:
+``sliding`` type options:
 ********************************
 
 - **window_size** (**Required**, int): The number of *measurements* over which to calculate the summary statistics when pushing out a
@@ -123,7 +124,7 @@ Configuration variables:
   Must be smaller than or equal to ``send_every``
   Defaults to ``1``.
 
-``chunked_sliding_window`` type options:
+``chunked_sliding`` type options:
 ****************************************
 
 - **window_size** (**Required**, int): The number of *chunks* over which to calculate the summary statistics when pushing out a value.
@@ -136,7 +137,7 @@ Configuration variables:
 - **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 
 
-``continuous_window`` type options:
+``continuous`` type options:
 ***********************************
 
 - **window_size** (*Optional*, int): The number of *measurements* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
@@ -147,7 +148,7 @@ Configuration variables:
   Must be smaller than or equal to ``send_every``.
   Defaults to ``1``.
 
-``chunked_continuous_window`` type options:
+``chunked_continuous`` type options:
 *******************************************
 
 - **window_size** (*Optional*, int): The number of *chunks* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
@@ -172,14 +173,14 @@ The second category is a continuous window. This category of windows has a pre-d
 
 Instead of inserting individual measurements, the component can combine several sensor measurements into a chunk. When this chunk exceeds ``chunk_size`` sensor measurements or ``chunk_size`` duration, this component adds that chunk to the window. This approach saves memory for sliding windows, as memory does not hold every individual sensor measurement but only stores several sensor measurements combined. For continuous windows, this improves accuracy for significantly large windows.
 
-If you want to collect statistics from a significant number of measurements (potentially unlimited), use a ``chunked_continuous_window``. It uses slightly more memory and is slower but is numerically accurate. A ``continuous_window`` uses very little memory and is extremely fast. However, it can lose accuracy with significantly large windows.
+If you want to collect statistics from a significant number of measurements (potentially unlimited), use a ``chunked_continuous`` type. It uses slightly more memory and is slower but is numerically accurate. A ``continuous`` type uses very little memory and is extremely fast. However, it can lose accuracy with significantly large windows.
 
 .. list-table:: Sliding Window Type Comparison
     :header-rows: 1 
 
     * - 
-      - ``sliding_window``
-      - ``chunked_sliding_window``
+      - ``sliding``
+      - ``chunked_sliding``
     * - Capacity set by count
       - yes
       - yes
@@ -202,8 +203,8 @@ If you want to collect statistics from a significant number of measurements (pot
     :header-rows: 1
 
     * -
-      - ``continuous_window``
-      - ``chunked_continuous_window``
+      - ``continuous``
+      - ``chunked_continuous``
     * - Capacity set by count
       - yes
       - yes
