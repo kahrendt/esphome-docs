@@ -293,7 +293,7 @@ Statistics Description
 ----------------------------------
 
 This :ref:`Action <config-action>` allows you to reset all the statistics by clearing all stored measurements in the window. 
-For example, you could use a time-based automation to  reset all the statistics sensors at midnight.
+For example, you could use a time-based automation to reset all the statistics sensors at midnight.
 
 .. code-block:: yaml
 
