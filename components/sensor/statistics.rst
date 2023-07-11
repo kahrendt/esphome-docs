@@ -52,7 +52,7 @@ To use the component, first, provide the source sensor and then configure the wi
 Configuration variables:
 ------------------------
 
-- **type** (**Required**, string): One of ``sliding_window``, ``chunked_sliding_window``, ``continuous``, or ``chunked_continuous``.
+- **type** (**Required**, string): One of ``sliding_window``, ``chunked_sliding_window``, ``continuous_window``, or ``chunked_continuous_window``.
 - **average_type** (*Optional*, string): How each measurement is weighted, one of ``simple`` or ``time_weighted``. Defaults to ``simple``.
 - **group_type** (*Optional*, string): The type of the set of sensor measurements, one of ``sample`` or ``population``. Defaults to ``sample``.
 - **time_unit** (*Optional*, string): The time unit used for the covariance and trend sensors, one of
