@@ -121,7 +121,7 @@ Configuration variables:
 - **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *measurements*. Defaults to ``1``.
 - **send_first_at** (*Optional*, int): By default, the first *measurement's* statistics on boot is immediately
   published. With this parameter you can specify how many *measurements* should be collected before the first statistics are sent.
-  Must be smaller than or equal to ``send_every``
+  Must be less than or equal to ``send_every``
   Defaults to ``1``.
 
 ``chunked_sliding`` window type options:
@@ -131,7 +131,7 @@ Configuration variables:
 - **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *chunks*. Defaults to ``1``.
 - **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
   published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
-  Must be smaller than or equal to ``send_every``
+  Must be less than or equal to ``send_every``
   Defaults to ``1``.
 - **chunk_size** (*Optional*, int): The number of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 - **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
@@ -145,7 +145,7 @@ Configuration variables:
 - **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *measurements*. Defaults to ``1``.
 - **send_first_at** (*Optional*, int): By default, the first *measurement's* statistics on boot is immediately
   published. With this parameter you can specify how many *measurements* should be collected before the first statistics are sent.
-  Must be smaller than or equal to ``send_every``.
+  Must be less than or equal to ``send_every``.
   Defaults to ``1``.
 
 ``chunked_continuous`` window type options:
@@ -156,7 +156,7 @@ Configuration variables:
 - **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *chunks*. Defaults to ``1``.
 - **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
   published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
-  Must be smaller than or equal to ``send_every``.
+  Must be less than or equal to ``send_every``.
   Defaults to ``1``.
 - **chunk_size** (*Optional*, int): The number of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 - **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
