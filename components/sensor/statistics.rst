@@ -128,13 +128,13 @@ Configuration variables:
 ****************************************
 
 - **window_size** (**Required**, int): The number of *chunks* over which to calculate the summary statistics when pushing out a value.
+- **chunk_size** (*Optional*, int): The number of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 - **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *chunks*. Defaults to ``1``.
 - **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
   published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
   Must be less than or equal to ``send_every``
   Defaults to ``1``.
-- **chunk_size** (*Optional*, int): The number of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
-- **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 
 
 ``continuous`` window type options:
@@ -153,13 +153,13 @@ Configuration variables:
 
 - **window_size** (*Optional*, int): The number of *chunks* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **window_duration** (*Optional*, :ref:`config-time`): Time duration after which all statistics are reset. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
+- **chunk_size** (*Optional*, int): The number of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
+- **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 - **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *chunks*. Set to ``0`` to disable automatic sensor publication. Defaults to ``1``.
 - **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
   published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
   Must be less than or equal to ``send_every``.
   Defaults to ``1``.
-- **chunk_size** (*Optional*, int): The number of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
-- **chunk_duration** (*Optional*, :ref:`config-time`): The duration of *measurements* to be stored in a chunk before inserting into the window. Note that exactly one of ``chunk_size`` or ``chunk_duration`` must be present.
 - **restore** (*Optional*, boolean): Whether to store the intermediate statistics on the device so that they can be restored upon power cycle or reboot. Warning: this option can wear out your flash. Defaults to ``false``.
 
 .. _window-types:
@@ -439,13 +439,13 @@ Suppose you want to report the mean temperature so far in a day.
       - platform: homeassistant
         id: homeassistant_time
         on_time:
-          // force publish 1 second before midnight
+          # force publish 1 second before midnight
           - seconds: 59
             minutes: 59
             hours: 23
             then:
               - sensor.statistics.force_publish: daily_temperature_stats
-          // reset window at midnight
+          # reset window at midnight
           - seconds: 0
             minutes: 0
             hours: 0
