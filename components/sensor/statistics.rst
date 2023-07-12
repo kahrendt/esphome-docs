@@ -142,7 +142,7 @@ Configuration variables:
 
 - **window_size** (*Optional*, int): The number of *measurements* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **window_duration** (*Optional*, :ref:`config-time`): Time duration after which all statistics are reset. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
-- **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *measurements*. Defaults to ``1``.
+- **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *measurements*. Set to ``0`` to disable automatic sensor publication. Defaults to ``1``.
 - **send_first_at** (*Optional*, int): By default, the first *measurement's* statistics on boot is immediately
   published. With this parameter you can specify how many *measurements* should be collected before the first statistics are sent.
   Must be less than or equal to ``send_every``.
@@ -153,7 +153,7 @@ Configuration variables:
 
 - **window_size** (*Optional*, int): The number of *chunks* after which all statistics are reset. Set to ``0`` to disable automatic resets. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
 - **window_duration** (*Optional*, :ref:`config-time`): Time duration after which all statistics are reset. Note that at least one of ``window_duration`` and ``window_size`` must be configured. If both are configured, whichever causes a reset first will do so.
-- **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *chunks*. Defaults to ``1``.
+- **send_every** (*Optional*, int): How often the sensor statistics should be pushed out. For example, if set to 15, then the statistic sensors will publish updates every 15 *chunks*. Set to ``0`` to disable automatic sensor publication. Defaults to ``1``.
 - **send_first_at** (*Optional*, int): By default, the first *chunk's* statistics on boot is immediately
   published. With this parameter you can specify how many *chunks* should be collected before the first statistics are sent.
   Must be less than or equal to ``send_every``.
