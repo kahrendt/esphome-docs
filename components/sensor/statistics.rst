@@ -403,7 +403,7 @@ Suppose you want to detect whether a sensors measurements has been increasing at
     # Trend Detection
     sensor:
       - platform: statistics
-        source_id: humidity sensor
+        source_id: humidity_sensor
         time_unit: h              # trend gives change in humidity percentage per hour
         window:
           type: chunked_continuous
@@ -419,10 +419,54 @@ Suppose you want to detect whether a sensors measurements has been increasing at
         sensor_id: humidity_trend
         threshold: 5            # sends state of true if humidity is increasing at a rate of 5 percent per hour or more
 
+Suppose you want to report the mean temperature so far in a day.
 
+.. code-block:: yaml
+
+    # Mean Sensor
+    sensor:
+      - platform: statistics
+        source_id: temperature_sensor
+        id: daily_temperature_stats
+        window:
+          type: chunked_continuous
+          window_size: 0        # we will manually reset the window
+          chunk_duration: 15min
+        mean:
+          name: "Temperature Mean (Day so Far)"
+
+    time:
+      - platform: homeassistant
+        id: homeassistant_time
+        on_time:
+          // force publish 1 second before midnight
+          - seconds: 59
+            minutes: 59
+            hours: 23
+            then:
+              - sensor.statistics.force_publish: daily_temperature_stats
+          // reset window at midnight
+          - seconds: 0
+            minutes: 0
+            hours: 0
+            then:
+              - sensor.statistics.reset: daily_temperature_stats
+
+Statistics Automations
+----------------------
+
+``sensor.statistics.force_publish`` Action
+******************************************
+
+This :ref:`Action <config-action>` allows you to force all statistics sensors to publish an update. This can potentially send statistics over a window larger than configured for sliding windows.
+
+.. code-block:: yaml
+
+    on_...:
+      - sensor.statistics.force_publish:  my_statistics_component  
 
 ``sensor.statistics.reset`` Action
-----------------------------------
+**********************************
 
 This :ref:`Action <config-action>` allows you to reset all the statistics by clearing all stored measurements in the window. 
 For example, you could use a time-based automation to reset all the statistics sensors at midnight.
