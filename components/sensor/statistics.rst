@@ -58,6 +58,18 @@ Configuration variables:
 - **group_type** (*Optional*, enum): The type of the set of sensor measurements, one of ``sample`` or ``population``. Defaults to ``sample``.
 - **time_unit** (*Optional*, enum): The time unit used for the covariance and trend sensors, one of
   ``ms``, ``s``, ``min``, ``h`` or ``d``. Defaults to ``s``.
+- **argmax** (*Optional*): The information for the argmax sensor.
+
+  - **name** (**Required**, string): The name for the argmax sensor.
+  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
+  - All other options from :ref:`Sensor <config-sensor>`.  
+
+- **argmin** (*Optional*): The information for the argmin sensor.
+
+  - **name** (**Required**, string): The name for the argmin sensor.
+  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
+  - All other options from :ref:`Sensor <config-sensor>`.  
+
 - **count** (*Optional*): The information for the count sensor.
 
   - **name** (**Required**, string): The name for the count sensor.
@@ -227,6 +239,16 @@ If you want to collect statistics from a significant number of measurements (pot
 Statistics Description
 ----------------------
 
+- ``argmax`` sensor:
+  - The timespan since the most recent maximum value in the window.
+  - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
+  - The ``unit_of_measurement`` is in millseconds (ms).
+
+- ``argmin`` sensor:
+  - The timespan since the most recent minimum value in the window.
+  - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
+  - The ``unit_of_measurement`` is in millseconds (ms).
+
 - ``count`` sensor:
 
   - Counts the number of sensor measurements in the window that are not ``NaN``.
@@ -245,7 +267,7 @@ Statistics Description
 - ``duration`` sensor:
 
   - Gives the sum of the durations between each measurements' timestamps in the window.
-  - By default, its ``state_class`` is ``measurement``.  
+  - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
   - The ``unit_of_measurement`` is in millseconds (ms).
 
 - ``max`` sensor:
@@ -452,8 +474,8 @@ Suppose you want to report the mean temperature so far in a day.
             then:
               - sensor.statistics.reset: daily_temperature_stats
 
-Statistics Automations
-----------------------
+Automation Actions
+------------------
 
 ``sensor.statistics.force_publish`` Action
 ******************************************
