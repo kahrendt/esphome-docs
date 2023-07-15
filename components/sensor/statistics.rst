@@ -31,12 +31,8 @@ To use the component, first, provide the source sensor and then configure the wi
           name: "Time Since Last Maximum of Sensor"
         argmin:
           name: "Time Since Last Minimum of Sensor"
-        coeffecient_of_determination:
-          name: "Sensor Trend r²"
         count:
-          name: "Count of Valid Sensor Measurements"    
-        covariance:
-          name: "Sensor Sample Covariance"          
+          name: "Count of Valid Sensor Measurements"         
         duration:
           name: "Sample Duration"
         max:
@@ -49,8 +45,6 @@ To use the component, first, provide the source sensor and then configure the wi
           name: "Sensor Sample Standard Deviation"
         trend:
           name: "Sensor Trend"          
-        variance:
-          name: "Sensor Sample Variance"
 
       # Use any other sensor component to gather statistics for
       - platform: ...
@@ -62,7 +56,7 @@ Configuration variables:
 - **type** (**Required**, enum): One of ``sliding``, ``chunked_sliding``, ``continuous``, or ``chunked_continuous``.
 - **average_type** (*Optional*, enum): How each measurement is weighted, one of ``simple`` or ``time_weighted``. Defaults to ``simple``.
 - **group_type** (*Optional*, enum): The type of the set of sensor measurements, one of ``sample`` or ``population``. Defaults to ``sample``.
-- **time_unit** (*Optional*, enum): The time unit used for the covariance and trend sensors, one of
+- **time_unit** (*Optional*, enum): The time unit used for the trend sensor, one of
   ``ms``, ``s``, ``min``, ``h`` or ``d``. Defaults to ``s``.
 - **argmax** (*Optional*): The information for the argmax sensor.
 
@@ -76,21 +70,9 @@ Configuration variables:
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.  
 
-- **coeffecient_of_determination** (*Optional*): The information for the coeffecient of determination sensor.
-
-  - **name** (**Required**, string): The name for the coeffecient of determination sensor.
-  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
-  - All other options from :ref:`Sensor <config-sensor>`.  
-
 - **count** (*Optional*): The information for the count sensor.
 
   - **name** (**Required**, string): The name for the count sensor.
-  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
-  - All other options from :ref:`Sensor <config-sensor>`.  
-
-- **covariance** (*Optional*): The information for the covariance sensor.
-
-  - **name** (**Required**, string): The name for the covariance sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.  
 
@@ -127,12 +109,6 @@ Configuration variables:
 - **trend** (*Optional*): The information for the trend sensor.
 
   - **name** (**Required**, string): The name for the trend sensor.
-  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
-  - All other options from :ref:`Sensor <config-sensor>`.
-
-- **variance** (*Optional*): The information for the variance sensor.
-
-  - **name** (**Required**, string): The name for the variance sensor.
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.
 
@@ -263,29 +239,12 @@ Statistics Description
   - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.    
   - The ``unit_of_measurement`` is in millseconds (ms).
 
-- ``coeffecient_of_determination`` sensor:
-
-  - Gives the linear coeffecient of determination (r²) for the trend.
-  - By default, its ``state_class`` is ``total``. 
-  - By default, its ``unit_of_measurement`` is ``3``, as it always gives  a number between ``0`` and ``1``.  
-  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.     
-
 - ``count`` sensor:
 
   - Counts the number of sensor measurements in the window that are not ``NaN``.
   - By default, its ``state_class`` is ``total``.
   - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.     
 
-- ``covariance`` sensor:
-
-  - Gives the covariance of the sensor masurements in the window with respect to time.
-  - If ``group_type`` is ``sample``, and ``average_type`` is ``simple``, then it uses Bessel's correction to give an unbiased estimator.
-  - If ``group_type`` is ``sample``, and ``average_type`` is ``time_weighted``, then it uses reliability weights to give an unbiased estimator.  
-  - By default, its ``state_class`` is ``measurement``.
-  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.
-  - By default, it uses 2 more ``accuracy_decimals`` than the source sensor.
-  - The ``unit_of_measurement`` is the source sensor's unit multiplied by the configured ``time_unit``. For example, if the source sensor is in ``Pa`` and ``time_unit`` is in seconds, the unit is ``Pa⋅s``.
-  
 - ``duration`` sensor:
 
   - Gives the sum of the durations between each measurements' timestamps in the window.
@@ -328,16 +287,6 @@ Statistics Description
   - By default, it uses 2 more ``accuracy_decimals`` than the source sensor.
   - The ``unit_of_measurement`` is the source sensor's unit divided by the configured ``time_unit``. For example, if the source sensor is in ``Pa`` and ``time_unit`` is in seconds, the unit is ``Pa/s``.
   
-- ``variance`` sensor:
-
-  - Gives the variance of measurements from the source sensor in the window.
-  - If ``group_type`` is ``sample``, and ``average_type`` is ``simple``, then it uses Bessel's correction to give an unbiased estimator.
-  - If ``group_type`` is ``sample``, and ``average_type`` is ``time_weighted``, then it uses reliability weights to give an unbiased estimator.
-  - By default, its ``state_class`` is ``measurement``.  
-  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.
-  - By default, it uses 2 more ``accuracy_decimals`` than the source sensor.
-  - The ``unit_of_measurement`` is the source sensor's unit squared. For example, if the source sensor is in ``Pa``, the unit is ``(Pa)²``.
-
 General Advice
 --------------
 
@@ -366,7 +315,7 @@ If you use an ESP32 board with external memory, then this component will automat
 Group Types
 ***********
 
-You can configure whether the component considers the set of sensor measurements to be a population or a sample using the ``population`` and ``sample`` type respectivally. This will affect the ``covariance``, ``standard deviation``, and ``variance`` sensors. For sliding windows or continuous windows that reset, the ``sample`` type is appropiate. If you are using a ``chunked_continuous`` window type without resetting it; i.e., ``window_size`` is ``0``, then you should use the ``population`` type. 
+You can configure whether the component considers the set of sensor measurements to be a population or a sample using the ``population`` and ``sample`` type respectivally. This will affect the standard devation ``std_dev`` sensor. For sliding windows or continuous windows that reset, the ``sample`` type is appropiate. If you are using a ``chunked_continuous`` window type without resetting it; i.e., ``window_size`` is ``0``, then you should most likely use the ``population`` type. 
 
 Trend Sensor
 ************
