@@ -27,6 +27,12 @@ To use the component, first, provide the source sensor and then configure the wi
           send_first_at: 3
         average_type: time_weighted
         group_type: sample
+        argmax:
+          name: "Time Since Last Maximum of Sensor"
+        argmin:
+          name: "Time Since Last Minimum of Sensor"
+        coeffecient_of_determination:
+          name: "Sensor Trend r²"
         count:
           name: "Count of Valid Sensor Measurements"    
         covariance:
