@@ -188,8 +188,8 @@ If you want to collect statistics from a significant number of measurements (pot
       - no
       - indirectly
     * - Memory usage
-      - high (for large windows)
-      - medium (if chunk size is large)
+      - low to high (depends on window size)
+      - low (if chunk size is large) to medium (if chunk size is small)
     * - CPU usage
       - very low
       - very low
@@ -213,12 +213,12 @@ If you want to collect statistics from a significant number of measurements (pot
       - yes
     * - Memory usage
       - very low
-      - low (for large windows)
+      - very low to low (depends on window size)
     * - CPU usage
       - very low
       - low
     * - Accurate Long-Term
-      - potentially no (for large windows)
+      - potentially no (for large window sizes)
       - yes
 
 
@@ -228,16 +228,18 @@ Statistics Description
 ----------------------
 
 - ``argmax`` sensor:
+
   - The timespan since the most recent maximum value in the window.
   - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
   - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.  
-  - The ``unit_of_measurement`` is in millseconds (ms).
+  - The ``unit_of_measurement`` is millseconds (ms).
 
 - ``argmin`` sensor:
+
   - The timespan since the most recent minimum value in the window.
   - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
   - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.    
-  - The ``unit_of_measurement`` is in millseconds (ms).
+  - The ``unit_of_measurement`` is millseconds (ms).
 
 - ``count`` sensor:
 
@@ -250,7 +252,7 @@ Statistics Description
   - Gives the sum of the durations between each measurements' timestamps in the window.
   - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
   - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.     
-  - The ``unit_of_measurement`` is in millseconds (ms).
+  - The ``unit_of_measurement`` is millseconds (ms).
 
 - ``max`` sensor:
 
@@ -293,7 +295,7 @@ General Advice
 Average Types
 *************
 
-You can configure the average type to equally weight each sensor measurement using ``simple`` or weigh each measurement by its duration using ``time_weighted``. If your sensor updates are consistently timed, then ``simple`` should work well. If your sensor is not updated regularly, then choose the ``time_weighted`` type. Note that with the ``time_weighted`` type, a sensor measurement is not inserted into the window until the next sensor measurement; i.e., there is a delay of one measurement. This is necessary to determine the each measurement's duration.
+You can configure the average type to equally weigh each sensor measurement using ``simple`` or weigh each measurement by its duration using ``time_weighted``. If your sensor updates have a consistent update interval, then ``simple`` should work well. If your sensor is not updated consistently, then choose the ``time_weighted`` type. Note that with the ``time_weighted`` type, the component does not insert a sensor measurement into the window until it receives another sensor measurement; i.e., there is a delay of one measurement. This delay is necessary to determine each measurement’s duration.
 
 
 .. _external_memory:
@@ -301,7 +303,7 @@ You can configure the average type to equally weight each sensor measurement usi
 External Memory
 ***************
 
-If you use an ESP32 board with external memory, then this component will automatically use it to store sensor measurements. Just add ``psram:`` to your configuration.
+If you use an ESP32 board with external memory, then this component will automatically store sensor measurements in the external memory. Just add ``psram:`` to your configuration.
 
 .. code-block:: yaml
 
@@ -315,18 +317,17 @@ If you use an ESP32 board with external memory, then this component will automat
 Group Types
 ***********
 
-You can configure whether the component considers the set of sensor measurements to be a population or a sample using the ``population`` and ``sample`` type respectivally. This will affect the standard devation ``std_dev`` sensor. For sliding windows or continuous windows that reset, the ``sample`` type is appropiate. If you are using a ``chunked_continuous`` window type without resetting it; i.e., ``window_size`` is ``0``, then you should most likely use the ``population`` type. 
+You can configure whether the component considers the set of sensor measurements to be a population or a sample using the ``population`` or ``sample`` type respectively. This setting affects the standard deviation ``std_dev`` sensor. For sliding windows or continuous windows that reset the ``sample`` type is appropriate. If you use a ``chunked_continuous`` window type without automatic reset, you should most likely use the ``population`` type.
 
 Trend Sensor
 ************
 
-The trend sensor can be unstable over a small set of sensor measurements, especially if there is some noise in the underlying data. To avoid this, use a trend sensor over windows with a large amount of measurements in them; e.g., 50 or more. Or, apply a smoothing filter like an exponential moving average to the source sensor before being sent to this component.
+The trend sensor may be unstable over a small set of sensor measurements, especially if the sensor is noisy. To avoid this, use a trend sensor on large windows; e.g., 50 or more sensor measurements. Or, apply a smoothing filter like an exponential moving average to the source sensor.
 
 Which Continuous Window Type to Choose
 **************************************
 
-If you want to collect long-term statistics that include thousands (or more) of measurements, then you should use the ``chunked_continuous`` window type. If you are only collecting statistics over a smaller set of measurements, then use the ``continuous`` window type.
-
+If you collect long-term statistics that include thousands (or more) of measurements, you should use the ``chunked_continuous`` window type. If you only collect statistics over a smaller set of measurements, then use the ``continuous`` window type.
 
 Which Sliding Window Type to Choose
 ***********************************
@@ -334,10 +335,13 @@ Which Sliding Window Type to Choose
 Unless you need your statistics to update after every sensor measurement or you need to set the ``send_every`` option to a number that does not divide ``window_size``, you should use the ``chunked_sliding`` window type.
 
 
-Which Type Examples
-*******************
+Example Configurations
+----------------------
 
-Suppose you want to send the mean/average of a sensor's measurments over the last minute once every minute, then you should use the ``continuous`` window type:
+One Minute Window Published Every Minute
+****************************************
+
+Suppose you want to send the mean/average of a sensor’s measurements over the last minute updated once every minute.
 
 .. code-block:: yaml
 
@@ -352,7 +356,10 @@ Suppose you want to send the mean/average of a sensor's measurments over the las
         mean:
           name: "Sensor Mean (1 minute)"  
 
-Suppose you want to collect the minimum and maximum value of a sensor's measurements over the last hour, updated once per minute.
+One Hour Window Published Every Minute
+**************************************
+
+Suppose you want to send the minimum and maximum value of a sensor’s measurements over the last hour, updated once per minute.
 
 .. code-block:: yaml
 
@@ -370,7 +377,10 @@ Suppose you want to collect the minimum and maximum value of a sensor's measurem
         max:
           name: "Sensor Max (1 hour)"
 
-Suppose you want to collect the mean/average of a sensor's measurements for all time, with updates every 15 minutes.
+All-Time Window Published Every 15 minutes
+******************************************
+
+Suppose you want to send the mean/average of a sensor's measurements for all time, with updates every 15 minutes.
 
 .. code-block:: yaml
 
@@ -390,30 +400,10 @@ Suppose you want to collect the mean/average of a sensor's measurements for all 
     preferences:
       flash_write_interval: 1h    # writes statistics to flash every hour to avoid unnecessary writes      
 
-Suppose you want to detect whether a sensors measurements has been increasing at a high rate. For example, if a humidity sensor in a bathroom is increasing fast, then there is a good chance the shower is running.
+Day so Far Window Published Every 15 Minutes
+********************************************
 
-.. code-block:: yaml
-
-    # Trend Detection
-    sensor:
-      - platform: statistics
-        source_id: humidity_sensor
-        time_unit: h              # trend gives change in humidity percentage per hour
-        window:
-          type: chunked_continuous
-          window_size: 15         # compute trend over last 15 minutes
-          chunk_duration: 1min
-        trend:
-          name: "Humidity Trend (15 minutes)"
-          id: humidity_trend
-    
-    binary_sensor:
-      - platform: analog_threshold
-        name: "Shower Started"
-        sensor_id: humidity_trend
-        threshold: 5            # sends state of true if humidity is increasing at a rate of 5 percent per hour or more
-
-Suppose you want to report the mean temperature so far in a day.
+Suppose you want to send the mean temperature measurement so far in a day, with updates every 15 minutes.
 
 .. code-block:: yaml
 
@@ -433,7 +423,7 @@ Suppose you want to report the mean temperature so far in a day.
       - platform: homeassistant
         id: homeassistant_time
         on_time:
-          # force publish 1 second before midnight
+          # force publish 1 second before midnight so we do not miss the last chunk
           - seconds: 59
             minutes: 59
             hours: 23
@@ -452,7 +442,7 @@ Automation Actions
 ``sensor.statistics.force_publish`` Action
 ******************************************
 
-This :ref:`Action <config-action>` allows you to force all statistics sensors to publish an update. This can potentially send statistics over a window larger than configured for sliding windows.
+This :ref:`Action <config-action>` allows you to force all statistics sensors to publish an update. Note, the action may send statistics over a window larger than configured for ``chunked_sliding`` types.
 
 .. code-block:: yaml
 
