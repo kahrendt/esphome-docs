@@ -70,6 +70,12 @@ Configuration variables:
   - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
   - All other options from :ref:`Sensor <config-sensor>`.  
 
+- **coeffecient_of_determination** (*Optional*): The information for the coeffecient of determination sensor.
+
+  - **name** (**Required**, string): The name for the coeffecient of determination sensor.
+  - **id** (*Optional*, :ref:`config-id`): Set the ID of this sensor for use in lambdas.
+  - All other options from :ref:`Sensor <config-sensor>`.  
+
 - **count** (*Optional*): The information for the count sensor.
 
   - **name** (**Required**, string): The name for the count sensor.
@@ -242,17 +248,27 @@ Statistics Description
 - ``argmax`` sensor:
   - The timespan since the most recent maximum value in the window.
   - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
+  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.  
   - The ``unit_of_measurement`` is in millseconds (ms).
 
 - ``argmin`` sensor:
   - The timespan since the most recent minimum value in the window.
   - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
+  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.    
   - The ``unit_of_measurement`` is in millseconds (ms).
+
+- ``coeffecient_of_determination`` sensor:
+
+  - Gives the linear coeffecient of determination (r²) for the trend.
+  - By default, its ``state_class`` is ``total``. 
+  - By default, its ``unit_of_measurement`` is ``3``, as it always gives  a number between ``0`` and ``1``.  
+  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.     
 
 - ``count`` sensor:
 
   - Counts the number of sensor measurements in the window that are not ``NaN``.
   - By default, its ``state_class`` is ``total``.
+  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.     
 
 - ``covariance`` sensor:
 
@@ -268,6 +284,7 @@ Statistics Description
 
   - Gives the sum of the durations between each measurements' timestamps in the window.
   - By default, its ``state_class`` is ``measurement``, and its ``device_class`` is ``duration``.
+  - By default, it inherits ``entity_category`` and ``icon`` from the source sensor.     
   - The ``unit_of_measurement`` is in millseconds (ms).
 
 - ``max`` sensor:
