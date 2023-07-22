@@ -480,6 +480,7 @@ Miscellaneous
     Remote Receiver, components/remote_receiver, remote.svg, dark-invert
     Resol VBus, components/vbus, resol_deltasol_bs_plus.jpg
     Tuya Binary Sensor, components/binary_sensor/tuya, tuya.png
+    Qwiic PIR Motion Sensor, components/binary_sensor/qwiic_pir, qwiic_pir.jpg
 
 Output Components
 -----------------
