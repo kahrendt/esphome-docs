@@ -51,4 +51,5 @@ See Also
 --------
 - :doc:`/components/binary_sensor/index`
 - :apiref:`qwiic_pir/qwiic_pir.h`
+- `SparkFun Qwiic PIR Library <https://github.com/sparkfun/SparkFun_Qwiic_PIR_Arduino_Library>`__ by `SparkFun <https://www.sparkfun.com/>`__
 - :ghedit:`Edit`
