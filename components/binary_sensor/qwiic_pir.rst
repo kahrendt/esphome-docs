@@ -30,8 +30,6 @@ To use the sensor, first set up an :ref:`I²C Bus <i2c>` and connect the sensor 
       - platform: qwiic_pir
         name: "Qwiic PIR Motion Sensor"
         debounce: 10ms
-        raw:
-            name: "Qwiic PIR Raw Motion Sensor"
 
 Configuration variables:
 ------------------------
@@ -39,11 +37,6 @@ Configuration variables:
 - **name** (**Required**, string): The name of the motion sensor.
 - **id** (*Optional*, :ref:`config-id`): Manually specifiy the ID used for code generation.
 - **debounce** (*Optional*, :ref:`config-time`): The debounce time to reduce noise and false detections. Defaults to ``5ms``.
-- **raw** (*Optional*) The information for the raw motion binary sensor.
-
-    - **name** (**Required**, string): The name for the raw motion binary sensor.
-    - **id** (*Optional*, :ref:`config-id`): Manually specifiy the raw binary sensor's ID used for code generation.
-    -  All other options from :ref:`Binary Sensor <config-binary_sensor>`.
 
 -  All other options from :ref:`Binary Sensor <config-binary_sensor>`.
 
