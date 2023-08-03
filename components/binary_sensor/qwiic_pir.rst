@@ -19,7 +19,7 @@ sensors from SparkFun with ESPHome.
 
 The SparkFun Qwiic PIR Motion binary sensor uses PIR sensors to detect motion. It communicates over I²C. There are two models currently available. One uses the `Panasonic EKMC4607112K sensor <https://cdn.sparkfun.com/assets/7/2/a/4/3/EKMC460711xK_Spec.pdf>`__, and the other uses the `Panasonic EKMB1107112 sensor <https://cdn.sparkfun.com/assets/c/e/8/7/5/EKMB110711x_Spec.pdf>`__. 
 
-You can configure a debounce time to reduce noise and false detections. You can also define an optional binary sensor that reports the raw state of the PIR sensor with no debouncing.
+You can configure a debounce mode to reduce noise and false detections. See :ref:`debounce-modes` for the available options.
 
 To use the sensor, first set up an :ref:`I²C Bus <i2c>` and connect the sensor to the specified pins.
 
@@ -29,16 +29,46 @@ To use the sensor, first set up an :ref:`I²C Bus <i2c>` and connect the sensor 
     binary_sensor:
       - platform: qwiic_pir
         name: "Qwiic PIR Motion Sensor"
-        debounce: 10ms
+        debounce_mode: hybrid
+        filters: 
+            - delayed_on: 50ms
+            - delayed_off: 1s
 
 Configuration variables:
 ------------------------
 
 - **name** (**Required**, string): The name of the motion sensor.
 - **id** (*Optional*, :ref:`config-id`): Manually specifiy the ID used for code generation.
-- **debounce** (*Optional*, :ref:`config-time`): The debounce time to reduce noise and false detections. Defaults to ``5ms``.
+- **debounce_mode** (*Optional*, enum): How should the sensor debounce the motion sensor's signal. Must be one of ``HYBRID``, ``NATIVE``, or ``RAW``. See :ref:`debounce-modes` for details. Defaults to ``HYBRID``.
+- **debounce** (*Optional*, :ref:`config-time`): Only valid when using ``NATIVE`` debounce mode. Configures the debounce time on the sensor to reduce noise and false detections. Defaults to ``1ms``.
 
 -  All other options from :ref:`Binary Sensor <config-binary_sensor>`.
+
+.. _debounce-modes:
+
+Debounce Modes
+**************
+
+There are three options for ``debounce_mode``.
+
+- ``HYBRID``:
+
+    - Use a combination of the raw sensor reading and the sensor's native event detection to determine state.
+    - Very reliable for detecting both object's being detected and no longer detected.
+    - Use binary sensor filters to reduce noise and false detections.
+
+- ``NATIVE``:
+    
+    - Use the sensor's native event detection to debounce the signal.
+    - Uses the logic in `SparkFun's example implementation <https://github.com/sparkfun/SparkFun_Qwiic_PIR_Arduino_Library/blob/master/examples/Example2_PrintPIRStatus/Example2_PrintPIRStatus.ino>`__.
+    - May be unreliable at detecting when an object is removed, especially at high debounce rates.
+    - Binary sensor filters are not necessary to reduce noise and false detections.
+
+- ``RAW``:
+    
+    - Use the raw state of the PIR sensor as reported by the firmware.
+    - May miss a very short motion detection events if ESPHome's loop time is slow.
+    - Use binary sensor filters to reduce noise and false detections.
 
 See Also
 --------
