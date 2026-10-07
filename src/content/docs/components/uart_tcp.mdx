@@ -67,6 +67,9 @@ uart_tcp:
   again after a failure. Defaults to `5s`.
 - **connected** (*Optional*): A binary sensor that reports whether the TCP connection is established. All options
   from [Binary Sensor](/components/binary_sensor#config-binary_sensor) are supported.
+- **disconnects** (*Optional*): A sensor that counts how many times an open connection has closed. It starts at
+  `0` on boot and does not increase again while the connection stays down. All options from
+  [Sensor](/components/sensor#config-sensor) are supported.
 
 ## Zigbee Coordinator
 
