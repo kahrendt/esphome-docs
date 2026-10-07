@@ -53,11 +53,15 @@ uart_tcp:
 ## Configuration variables
 
 - **id** (*Optional*, [ID](/guides/configuration-types#id)): Manually specify the ID used for code generation.
-- **uart_id** (**Required**, [ID](/guides/configuration-types#id)): The [UART bus](/components/uart/) to use.
+- **uart_id** (**Required**, [ID](/guides/configuration-types#id)): The [UART bus](/components/uart/) to use. This
+  component needs the UART for itself: another component with the same `uart_id`, or `dummy_receiver` in the UART's
+  [debug](/components/uart/#debugging) option, is rejected. A `uart.write` action or a lambda that uses the UART is
+  not detected, so avoid them.
 - **role** (*Optional*, string): `client` or `server`. Defaults to `client`.
 - **host** (**Required** when `role` is `client`, string): The host to connect to. An IP address or a hostname.
   This option cannot be used when `role` is `server`.
-- **port** (**Required**, int): The TCP port to connect to, or to listen on.
+- **port** (**Required**, int): The TCP port to connect to, or to listen on. When `role` is `server`, a second
+  `uart_tcp` or `tcp_uart` server on the same port is rejected.
 - **allowed_ips** (*Optional* when `role` is `server`, list): IPv4 addresses that may connect. A plain
   address is one host. A network is written in CIDR form, for example `192.0.2.0/24`. At most 255 entries. If
   the option is omitted, every address may connect. A rejected client is closed immediately and logged as a
