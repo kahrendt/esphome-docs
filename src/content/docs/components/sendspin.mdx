@@ -57,8 +57,9 @@ sendspin:
   [project version](/components/esphome#esphome-creators_project) when one is set,
   otherwise the ESPHome version.
 - **static_pairing_code** (*Optional*, string): A fixed pairing code of exactly 8 decimal digits. Always quote the
-  value, for example `"01234567"`, since an unquoted number is rejected. Cannot be combined with a
-  [dynamic pairing code](#dynamic-pairing-code). See [Static Pairing Code](#static-pairing-code).
+  value, including in `secrets.yaml` when using `!secret`, for example `"01234567"`, since an unquoted number is
+  rejected. Cannot be combined with a [dynamic pairing code](#dynamic-pairing-code). See
+  [Static Pairing Code](#static-pairing-code).
 - **unpaired_access** (*Optional*, boolean): Whether servers that have not paired with the device may play on
   it. Set to `false` once a server is paired so only paired servers can play. Defaults to `true`.
 
@@ -70,9 +71,9 @@ when [unpaired access](#unpaired-access) is off. The device can offer these ways
 ### Static Pairing Code
 
 Set `static_pairing_code` to a fixed 8-digit code, then enter that code on the server. Pick a random code that is
-unique to the device. Every attempt must also be confirmed on the device with the
+unique to the device. An attempt must also be confirmed on the device with the
 [`sendspin.confirm_pairing_window`](#sendspin-confirm_pairing_window-action) action, for example from a button press.
-[`on_open_pairing_window`](#automations) runs when a server is waiting for that confirmation.
+[`on_open_pairing_window`](#automations) runs when an attempt is waiting for that confirmation.
 
 Confirming opens a **pairing window** of 5 minutes. It closes early when pairing succeeds, after 5 wrong codes,
 when the server disconnects, or when [`sendspin.cancel_pairing_window`](#sendspin-cancel_pairing_window-action) runs.
@@ -87,7 +88,8 @@ confirmed on the device, and there is no pairing window. After 20 wrong codes, t
 [`sendspin.confirm_pairing_window`](#sendspin-confirm_pairing_window-action) runs, which resets the count. Give the
 device a way to run it, such as a button. [`on_open_pairing_window`](#automations) runs when an attempt is waiting.
 
-Only one pairing code method can be offered, so a dynamic pairing code cannot be combined with
+Only one pairing code method can be offered. The device offers a dynamic pairing code when
+`on_display_pairing_code` or a `pairing_code` text sensor is configured, so neither can be combined with
 `static_pairing_code`.
 
 ## Unpaired Access
@@ -97,7 +99,8 @@ While `unpaired_access` is `true`, any server on the network may play on the dev
 
 > [!WARNING]
 > With `unpaired_access: false`, make sure the device offers a [static](#static-pairing-code) or
-> [dynamic](#dynamic-pairing-code) pairing code. Otherwise no server can play on it.
+> [dynamic](#dynamic-pairing-code) pairing code. Otherwise no new server can pair, so only servers that already
+> paired can play.
 
 ## Automations
 
@@ -109,8 +112,8 @@ While `unpaired_access` is `true`, any server on the network may play on the dev
   `user_cancelled` or `unknown`. Compare it directly, for example `reason == "user_cancelled"`, and use
   `reason.c_str()` to log it.
 - **on_open_pairing_window** (*Optional*, [Automation](/automations/)): An automation to perform when a pairing
-  attempt is waiting to be confirmed on the device: every [static pairing code](#static-pairing-code) attempt, or a
-  [dynamic pairing code](#dynamic-pairing-code) attempt after 20 wrong codes. Run
+  attempt is waiting to be confirmed on the device: a [static pairing code](#static-pairing-code) attempt while no
+  pairing window is open, or a [dynamic pairing code](#dynamic-pairing-code) attempt after 20 wrong codes. Run
   [`sendspin.confirm_pairing_window`](#sendspin-confirm_pairing_window-action) to allow it.
 - **on_close_pairing_window** (*Optional*, [Automation](/automations/)): An automation to perform when the
   attempt that ran `on_open_pairing_window` ends, whatever the outcome. Use it to dismiss a prompt.
