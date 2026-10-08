@@ -61,7 +61,9 @@ sendspin:
   rejected. Cannot be combined with a [dynamic pairing code](#dynamic-pairing-code). See
   [Static Pairing Code](#static-pairing-code).
 - **unpaired_access** (*Optional*, boolean): Whether servers that have not paired with the device may play on
-  it. Set to `false` once a server is paired so only paired servers can play. Defaults to `true`.
+  it. Set to `false` once a server is paired so only paired servers can play. Defaults to `true`. To change it at
+  runtime, use a [Sendspin Switch](/components/switch/sendspin/) of type `unpaired_access` instead; the two cannot
+  be combined.
 
 ## Pairing
 
@@ -95,7 +97,8 @@ Only one pairing code method can be offered. The device offers a dynamic pairing
 ## Unpaired Access
 
 While `unpaired_access` is `true`, any server on the network may play on the device without pairing. When it is
-`false`, servers that have not paired can still connect to pair, but cannot play.
+`false`, servers that have not paired can still connect to pair, but cannot play. A
+[Sendspin Switch](/components/switch/sendspin/) of type `unpaired_access` can turn it on and off at runtime instead.
 
 > [!WARNING]
 > With `unpaired_access: false`, make sure the device offers a [static](#static-pairing-code) or
@@ -206,7 +209,7 @@ binary_sensor:
 - [Sendspin Sensor](/components/sensor/sendspin/): Exposes numeric metadata
   about the currently playing audio (track progress, track duration, etc.).
 - [Sendspin Switch](/components/switch/sendspin/): Enables and disables the
-  Sendspin client.
+  Sendspin client, and turns unpaired access on and off.
 - [Sendspin Text Sensor](/components/text_sensor/sendspin/): Exposes metadata
   about the currently playing audio (title, artist, album, etc.), and the pairing code.
 
