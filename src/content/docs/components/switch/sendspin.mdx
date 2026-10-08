@@ -12,9 +12,10 @@ The `sendspin` switch platform controls the [Sendspin](/components/sendspin/) cl
   servers, closes any server connection, and rejects playback and control commands from the other Sendspin
   components. Turning it on starts the client again.
 - `unpaired_access`: Turns [unpaired access](/components/sendspin/#unpaired-access) on and off. While it is off,
-  only servers that have [paired](/components/sendspin/#pairing) with the device can play on it. This switch
-  replaces the hub's [`unpaired_access`](/components/sendspin/#configuration-variables) option, and the two
-  cannot be configured together.
+  only servers that have [paired](/components/sendspin/#pairing) with the device can play on it. Before turning it
+  off, make sure the device offers a [pairing code](/components/sendspin/#pairing), otherwise no new server can
+  pair. This switch replaces the hub's [`unpaired_access`](/components/sendspin/#configuration-variables) option,
+  and the two cannot be configured together.
 
 Each switch restores its previous state on boot and defaults to on, so a setting that was turned off stays off
 after a restart. Only one switch of each type can be configured.
